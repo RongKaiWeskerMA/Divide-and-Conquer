@@ -17,7 +17,7 @@ This repository contains the code of the implementation of the ["Divide and Conq
 Before conducting the experiments, you need to install the required libraries. We commend an anaconda environment with python >= 3.8. 
 
 ```bash
-      conda install create -n dac python=3.9 &&
+      conda create -n dac python=3.9 &&
       pip install -r requirements.txt
 ```
 
