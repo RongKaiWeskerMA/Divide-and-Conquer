@@ -27,7 +27,7 @@ Before conducting the experiments, you need to install the required libraries. W
 
 
 
-### Training guide
+### Training guides
 * The entire training pipeline is divided into 3 phases:
 
   1. Pretrain an expert given a split of dataset.
