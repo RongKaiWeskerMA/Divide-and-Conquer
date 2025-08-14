@@ -8,7 +8,7 @@ from typing import List, Dict, Any
 import tempfile
 import re
 import numpy as np
-
+import torch
 
 # def get_freer_gpu():
 #     with tempfile.TemporaryDirectory() as tmpdir:

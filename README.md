@@ -1,4 +1,4 @@
-# Divide and Conquer: Rethinking the Training Paradigm of Neural Radiance Fields
+# Divide and Conquer: Rethinking the Training Paradigm of Neural Radiance Fields:::
 
 ## :imp:Introduction
 
