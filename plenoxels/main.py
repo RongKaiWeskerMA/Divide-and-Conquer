@@ -29,10 +29,8 @@ import torch
 
 import torch
 import torch.utils.data
-from plenoxels.runners import video_trainer
-from plenoxels.runners import phototourism_trainer
 from plenoxels.runners import static_trainer
-from plenoxels.utils.create_rendering import render_to_path, decompose_space_time
+from plenoxels.utils.create_rendering import render_to_path
 from plenoxels.utils.parse_args import parse_optfloat
 
 
@@ -47,17 +45,7 @@ def setup_logging(log_level=logging.INFO):
 def load_data(model_type: str, data_downsample, data_dirs, validate_only: bool, render_only: bool, **kwargs):
     data_downsample = parse_optfloat(data_downsample, default_val=1.0)
 
-    if model_type == "video":
-        return video_trainer.load_data(
-            data_downsample, data_dirs, validate_only=validate_only,
-            render_only=render_only, **kwargs)
-    elif model_type == "phototourism":
-        return phototourism_trainer.load_data(
-            data_downsample, data_dirs, validate_only=validate_only,
-            render_only=render_only, **kwargs
-        )
-    
-    elif kwargs['distil']:
+    if kwargs['distil']:
         return static_trainer.load_data_distil(data_dirs, **kwargs)
 
     else:
@@ -67,13 +55,7 @@ def load_data(model_type: str, data_downsample, data_dirs, validate_only: bool, 
 
 
 def init_trainer(model_type: str, **kwargs):
-    if model_type == "video":
-        from plenoxels.runners import video_trainer
-        return video_trainer.VideoTrainer(**kwargs)
-    elif model_type == "phototourism":
-        from plenoxels.runners import phototourism_trainer
-        return phototourism_trainer.PhototourismTrainer(**kwargs)
-    elif kwargs['distil']:
+    if kwargs['distil']:
         from plenoxels.runners import static_trainer_distil
         return static_trainer_distil.StaticTrainer_distil(**kwargs)
     else:
@@ -184,8 +166,6 @@ def main():
         trainer.validate()
     elif render_only:
         render_to_path(trainer, extra_name="")
-    elif spacetime_only:
-        decompose_space_time(trainer, extra_name="")
     elif distillation:
         trainer.distillation()
 

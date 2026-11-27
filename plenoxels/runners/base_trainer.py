@@ -11,7 +11,6 @@ import torch
 import torch.utils.data
 from torch.utils.tensorboard import SummaryWriter
 
-from plenoxels.utils.timer import CudaTimer
 from plenoxels.utils.ema import EMA
 from plenoxels.models.lowrank_model import LowrankModel
 from plenoxels.utils.my_tqdm import tqdm
@@ -23,6 +22,17 @@ from plenoxels.ops.lr_scheduling import (
 )
 from plenoxels.raymarching.ray_samplers import RaySamples
 from plenoxels.ops.losses.histogram_loss import interlevel_loss_dns
+
+class _NoOpTimer:
+    enabled = False
+    timings: Dict[str, float] = {}
+
+    def reset(self):
+        pass
+
+    def check(self, name=None):
+        pass
+
 
 class BaseTrainer(abc.ABC):
     def __init__(self,
@@ -45,7 +55,7 @@ class BaseTrainer(abc.ABC):
         self.device = device
         self.eval_batch_size = kwargs.get('eval_batch_size', 8129)
         self.extra_args = kwargs
-        self.timer = CudaTimer(enabled=False)
+        self.timer = _NoOpTimer()
 
         self.log_dir = os.path.join(logdir, expname)
         os.makedirs(self.log_dir, exist_ok=True)
@@ -598,7 +608,6 @@ def initialize_model(
     Returns:
         Initialized LowrankModel.
     """
-    from .phototourism_trainer import PhototourismTrainer
     extra_args = copy(kwargs)
     # extra_args.pop('global_scale', None)
     # extra_args.pop('global_translation', None)    
@@ -633,7 +642,7 @@ def initialize_model(
         is_contracted=dset.is_contracted,
         global_scale=global_scale,
         global_translation=global_translation,
-        use_appearance_embedding=isinstance(runner, PhototourismTrainer),
+        use_appearance_embedding=False,
         num_images=num_images,
         **extra_args)
     log.info(f"Initialized {model.__class__} model with "

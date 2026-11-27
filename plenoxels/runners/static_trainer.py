@@ -7,7 +7,7 @@ import pandas as pd
 import torch
 import torch.utils.data
 import pickle
-from plenoxels.datasets import SyntheticNerfDataset, LLFFDataset, SyntheticNerfDataset_Distil, TanksandTemple
+from plenoxels.datasets import SyntheticNerfDataset, SyntheticNerfDataset_Distil, TanksandTemple
 from plenoxels.models.lowrank_model import LowrankModel
 from plenoxels.utils.ema import EMA
 from plenoxels.utils.my_tqdm import tqdm
@@ -161,10 +161,6 @@ def decide_dset_type(dd) -> str:
             or "lego" in dd or "materials" in dd or "mic" in dd
             or "ship" in dd or "real_scene" in dd):
         return "synthetic"
-    elif ("fern" in dd or "flower" in dd or "fortress" in dd
-          or "horns" in dd or "leaves" in dd or "orchids" in dd
-          or "room" in dd or "trex" in dd):
-        return "llff"
     elif ("M60" in dd or "Playground" in dd or 
           "Train" in dd or "Truck" in dd):
         return "tanksandtemple" 
@@ -188,12 +184,6 @@ def init_distil_data(data_dirs: Sequence[str], split: str, **kwargs):
         dset = TanksandTemple(
             data_dir, split=split, batch_size=batch_size, downsample=1, max_frames=max_ts_frames, exp_idx=exp_idx)
     
-    elif dset_type == "llff":
-        hold_every = parse_optint(kwargs.get('hold_every'))
-        dset = LLFFDataset(
-            data_dir, split=split, downsample=4, hold_every=hold_every,
-            contraction=kwargs['contract'], ndc=kwargs['ndc'],
-            ndc_far=float(kwargs['ndc_far']), near_scaling=float(kwargs['near_scaling']))
     else:
         raise ValueError(f"Dataset type {dset_type} invalid.")
     dset.reset_iter()
@@ -222,12 +212,6 @@ def init_tr_data(data_downsample: float, data_dirs: Sequence[str], **kwargs):
         dset = TanksandTemple(
             data_dir, split='train', downsample=data_downsample,
             max_frames=max_tr_frames, batch_size=batch_size, exp_idx = exp_idx)
-    elif dset_type == "llff":
-        hold_every = parse_optint(kwargs.get('hold_every'))
-        dset = LLFFDataset(
-            data_dir, split='train', downsample=int(data_downsample), hold_every=hold_every,
-            batch_size=batch_size, contraction=kwargs['contract'], ndc=kwargs['ndc'],
-            ndc_far=float(kwargs['ndc_far']), near_scaling=float(kwargs['near_scaling']))
     else:
         raise ValueError(f"Dataset type {dset_type} invalid.")
     dset.reset_iter()
@@ -256,12 +240,6 @@ def init_ts_data(data_dirs: Sequence[str], split: str, **kwargs):
         max_ts_frames = parse_optint(kwargs.get('max_ts_frames'))
         dset = TanksandTemple(
             data_dir, split=split, downsample=1, max_frames=max_ts_frames, exp_idx=exp_idx)
-    elif dset_type == "llff":
-        hold_every = parse_optint(kwargs.get('hold_every'))
-        dset = LLFFDataset(
-            data_dir, split=split, downsample=4, hold_every=hold_every,
-            contraction=kwargs['contract'], ndc=kwargs['ndc'],
-            ndc_far=float(kwargs['ndc_far']), near_scaling=float(kwargs['near_scaling']))
     else:
         raise ValueError(f"Dataset type {dset_type} invalid.")
     return {"ts_dset": dset}

@@ -7,7 +7,7 @@ import pandas as pd
 import torch
 import torch.utils.data
 import pickle
-from plenoxels.datasets import SyntheticNerfDataset, LLFFDataset, SyntheticNerfDataset_Distil
+from plenoxels.datasets import SyntheticNerfDataset, SyntheticNerfDataset_Distil
 from plenoxels.models.lowrank_model import LowrankModel
 from plenoxels.utils.ema import EMA
 from plenoxels.utils.my_tqdm import tqdm

@@ -12,7 +12,6 @@ from plenoxels.raymarching.ray_samplers import (
     ProposalNetworkSampler, RayBundle, RaySamples
 )
 from plenoxels.raymarching.spatial_distortions import SceneContraction, SpatialDistortion
-from plenoxels.utils.timer import CudaTimer
 
 
 class LowrankModel(nn.Module):
@@ -61,7 +60,6 @@ class LowrankModel(nn.Module):
         self.linear_decoder = linear_decoder
         self.linear_decoder_layers = linear_decoder_layers
         self.density_act = init_density_activation(density_activation)
-        self.timer = CudaTimer(enabled=False)
         ## have to specify if it is distillation phase, treated similar to traininng phase
         self.kwargs = kwargs
         self.distil = kwargs['distil']

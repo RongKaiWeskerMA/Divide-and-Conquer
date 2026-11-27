@@ -135,37 +135,3 @@ def rgb_lpips(rgb, gts, net_name='alex', device='cpu'):
     gts = gts.permute([2, 0, 1]).contiguous().to(device)
     rgb = rgb.permute([2, 0, 1]).contiguous().to(device)
     return __LPIPS__[net_name](gts, rgb, normalize=True).item()
-
-
-def jod(pred_frames: List[np.ndarray], gt_frames: List[np.ndarray]) -> float:
-    with tempfile.TemporaryDirectory() as tmpdir:
-        file_pred = os.path.join(tmpdir, "pred.mp4")
-        write_video_to_file(file_pred, pred_frames)
-        file_gt = os.path.join(tmpdir, "gt.mp4")
-        write_video_to_file(file_gt, gt_frames)
-        result = subprocess.check_output([
-            'fvvdp', '--test', file_pred, '--ref', file_gt, '--gpu', '0',
-            '--display', 'standard_fhd'])
-        result = float(result.decode().strip().split('=')[1])
-    return result
-
-
-def flip(pred_frames: List[np.ndarray], gt_frames: List[np.ndarray], interval: int = 10) -> float:
-    def extract_from_result(text: str, prompt: str):
-        m = re.search(prompt, text)
-        return float(m.group(1))
-
-    all_results = []
-    with tempfile.TemporaryDirectory() as tmpdir:
-        pred_fname = os.path.join(tmpdir, "pred.png")
-        gt_fname = os.path.join(tmpdir, "gt.png")
-        for i in range(len(pred_frames)):
-            if (i % interval) != 0:
-                continue
-            write_png(pred_fname, pred_frames[i])
-            write_png(gt_fname, gt_frames[i])
-            result = subprocess.check_output(
-                ['python', 'plenoxels/ops/flip/flip.py', '--reference', gt_fname, '--test', pred_fname]
-            ).decode()
-            all_results.append(extract_from_result(result, r'Mean: (\d+\.\d+)'))
-    return sum(all_results) / len(all_results)
