@@ -1,0 +1,57 @@
+# K-Planes (explicit) on NeRF-Synthetic with 4 experts, as in the DaC paper.
+# Every field is documented in src/dac/config.py; override any of them on the command
+# line, e.g. `data.root=data/nerf_synthetic/ship experiment.name=ship`.
+
+experiment:
+  name: lego
+  log_dir: logs/nerf_synthetic
+  device: cuda:0
+  seed: 0
+
+data:
+  dataset: nerf_synthetic
+  root: data/nerf_synthetic/lego
+  downsample: 1.0
+
+optim:
+  num_steps: 30000
+  batch_size: 4096
+  lr: 0.01
+  scheduler: warmup_cosine
+  fp16: true
+
+regularization:
+  plane_tv: 0.0001
+  plane_tv_proposal_net: 0.0001
+  histogram: 1.0
+  distortion: 0.001
+
+logging:
+  save_every: 30000
+  valid_every: 30000
+  save_outputs: true
+
+model:
+  grid:
+    grid_dimensions: 2
+    input_coordinate_dim: 3
+    output_coordinate_dim: 32
+    resolution: [128, 128, 128]
+  multiscale_res: [1, 2, 4]
+  density_activation: trunc_exp
+  concat_features_across_scales: true
+  linear_decoder: true
+  linear_decoder_layers: 4
+  num_samples: 48
+  num_proposal_samples: [256, 128]
+  num_proposal_iterations: 2
+  use_same_proposal_network: false
+  use_proposal_weight_anneal: true
+  single_jitter: false
+  proposal_nets:
+    - {num_input_coords: 3, num_output_coords: 8, resolution: [64, 64, 64]}
+    - {num_input_coords: 3, num_output_coords: 8, resolution: [128, 128, 128]}
+
+dac:
+  num_experts: 4
+  router: angular

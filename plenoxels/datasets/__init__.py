@@ -1,2 +1,0 @@
-from .synthetic_nerf_dataset import SyntheticNerfDataset, SyntheticNerfDataset_Distil
-from .tanksandtemple_dataset import TanksandTemple

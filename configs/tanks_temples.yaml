@@ -1,0 +1,60 @@
+# K-Planes (explicit) on Tanks and Temples (unbounded, contracted) with 4 experts.
+# Rays are routed to experts with the frame -> expert table in
+# `<data.root>/expert_assignment.json`, written by `dac split`.
+
+experiment:
+  name: Playground
+  log_dir: logs/tanks_temples
+  device: cuda:0
+  seed: 0
+
+data:
+  dataset: tanks_temples
+  root: data/TanksAndTempleBG/Playground
+  downsample: 1.0
+
+optim:
+  num_steps: 30000
+  batch_size: 4096
+  lr: 0.01
+  scheduler: warmup_cosine
+  fp16: true
+
+regularization:
+  plane_tv: 0.0002
+  plane_tv_proposal_net: 0.0002
+  histogram: 1.0
+  distortion: 0.001
+
+logging:
+  save_every: 10000
+  valid_every: 10000
+  save_outputs: true
+
+model:
+  grid:
+    grid_dimensions: 2
+    input_coordinate_dim: 3
+    output_coordinate_dim: 32
+    resolution: [64, 64, 64]
+  multiscale_res: [1, 2, 4, 8]
+  density_activation: trunc_exp
+  concat_features_across_scales: true
+  linear_decoder: true
+  linear_decoder_layers: 1
+  global_translation: [0.0, 0.0, 0.0]
+  global_scale: [1.0, 1.0, 1.0]
+  num_samples: 48
+  num_proposal_samples: [256, 128]
+  num_proposal_iterations: 2
+  use_same_proposal_network: false
+  use_proposal_weight_anneal: true
+  single_jitter: false
+  proposal_nets:
+    - {num_input_coords: 3, num_output_coords: 8, resolution: [64, 64, 64]}
+    - {num_input_coords: 3, num_output_coords: 8, resolution: [128, 128, 128]}
+
+dac:
+  num_experts: 4
+  router: lookup
+  assignment_file: expert_assignment.json
